@@ -11,6 +11,12 @@ dist
 dist-ssr
 *.local
 
+node_modules/
+bin/
+obj/
+.vs/
+*.user
+
 .vscode/*
 !.vscode/extensions.json
 .idea
