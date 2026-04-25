@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Gamepad2, Trophy, Calendar, Users, ChevronRight, MapPin } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { Gamepad2, Trophy, Calendar, Users, ChevronRight, Activity, Flame } from 'lucide-react';
 import { getGameImage } from '../utils/gameImages';
-import { formatInUserTZ, relativeTimeFromNow } from '../utils/time';
 import { supabase } from '../lib/supabase';
 import { Game, Tournament } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,36 +21,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [authRole, setAuthRole] = useState<'competitor' | 'organizer'>('competitor');
 
-  useEffect(() => {
-    fetchGames();
-    fetchTournaments();
-  }, [selectedGame]);
-
-  const [teamsSummary, setTeamsSummary] = useState<{ total: number; top: any[] }>({ total: 0, top: [] });
-
-  useEffect(() => {
-    fetchTeamsSummary();
-  }, []);
-
-  const fetchTeamsSummary = async () => {
-    const { count } = await supabase.from('teams').select('id', { count: 'exact', head: true });
-    const total = typeof count === 'number' ? count : 0;
-
-    const { data: topData } = await supabase.from('team_statistics').select('*, team:teams(*, game:games(*))').order('total_wins', { ascending: false }).limit(3);
-    setTeamsSummary({ total, top: topData || [] });
-  };
-
-  const fetchGames = async () => {
-    const { data } = await supabase
-      .from('games')
-      .select('*')
-      .eq('active', true)
-      .order('name');
-
-    if (data) setGames(data);
-  };
-
-  const fetchTournaments = async () => {
+  const fetchTournaments = useCallback(async () => {
     let query = supabase
       .from('tournaments')
       .select('*, game:games(*), organizer:user_profiles(*), participants:tournament_participants(*)');
@@ -71,14 +41,42 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       );
 
       const ongoing = data.filter(t => t.status === 'running');
-
       const past = data.filter(t => t.status === 'completed');
 
       setUpcomingTournaments(upcoming.slice(0, 4));
       setOngoingTournaments(ongoing.slice(0, 4));
       setPastTournaments(past.slice(0, 4));
     }
-  };
+  }, [selectedGame]);
+
+  const fetchGames = useCallback(async () => {
+    const { data } = await supabase
+      .from('games')
+      .select('*')
+      .eq('active', true)
+      .order('name');
+
+    if (data) setGames(data);
+  }, []);
+
+  useEffect(() => {
+    fetchGames();
+    fetchTournaments();
+  }, [fetchGames, fetchTournaments]);
+
+  const [teamsSummary, setTeamsSummary] = useState<{ total: number; top: any[] }>({ total: 0, top: [] });
+
+  useEffect(() => {
+    const fetchTeamsSummary = async () => {
+      const { count } = await supabase.from('teams').select('id', { count: 'exact', head: true });
+      const total = typeof count === 'number' ? count : 0;
+
+      const { data: topData } = await supabase.from('team_statistics').select('*, team:teams(*, game:games(*))').order('total_wins', { ascending: false }).limit(3);
+      setTeamsSummary({ total, top: topData || [] });
+    };
+
+    fetchTeamsSummary();
+  }, []);
 
   const openAuthModal = (mode: 'signin' | 'signup', role: 'competitor' | 'organizer') => {
     setAuthMode(mode);
@@ -89,13 +87,13 @@ export default function HomePage({ onNavigate }: HomePageProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'registration_open':
-        return 'bg-green-500/20 text-green-400 border-green-500/50';
+        return 'bg-green-500/10 text-green-400 border-green-500/20';
       case 'running':
-        return 'bg-red-500/20 text-red-400 border-red-500/50';
+        return 'bg-red-500/10 text-red-400 border-red-500/20';
       case 'completed':
-        return 'bg-slate-500/20 text-slate-400 border-slate-500/50';
+        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
       default:
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/50';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
     }
   };
 
@@ -104,150 +102,214 @@ export default function HomePage({ onNavigate }: HomePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950">
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDU5LCAxMzAsIDI0NiwgMC4xKSIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative">
-          <div className="text-center mb-16">
-            <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Compete in the
-              <span className="block bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent">
-                Ultimate Arena
+    <div className="min-h-screen bg-slate-950 text-white selection:bg-blue-500/30">
+      {/* Epic Hero Section */}
+      <div className="relative pt-32 pb-20 overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full -z-10 animate-pulse" />
+        <div className="absolute top-40 left-1/4 w-[400px] h-[400px] bg-indigo-600/10 blur-[100px] rounded-full -z-10" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="flex flex-col items-center text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-8 animate-bounce">
+              <Flame size={16} className="text-blue-400 fill-blue-400" />
+              <span className="text-xs font-black uppercase tracking-widest text-blue-400">
+                The Next Generation of Esports
               </span>
+            </div>
+
+            <h1 className="text-6xl md:text-8xl font-black mb-8 leading-[0.9] tracking-tighter uppercase italic">
+              Compete <span className="text-blue-500">Win</span> <br />
+              <span className="bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">Dominate</span>
             </h1>
-            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-              Join tournaments, compete with the best, and claim victory in your favorite esports titles
+
+            <p className="text-lg md:text-xl text-slate-400 max-w-2xl mb-12 font-medium leading-relaxed">
+              Arena is the premier destination for competitive gaming. Join thousands of players, build your legacy, and rise to the top of the leaderboards.
             </p>
 
             {!user && (
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
                 <button
                   onClick={() => openAuthModal('signup', 'competitor')}
-                  className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/40 flex items-center gap-2"
+                  className="group relative px-10 py-5 bg-blue-600 rounded-2xl font-black uppercase tracking-tighter italic text-xl transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-blue-600/20"
                 >
-                  <Trophy size={20} />
-                  Start Competing
-                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                  <span className="relative flex items-center gap-3">
+                    Start Playing <ChevronRight size={24} />
+                  </span>
                 </button>
                 <button
                   onClick={() => openAuthModal('signup', 'organizer')}
-                  className="group px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-500/40 flex items-center gap-2"
+                  className="group px-8 py-4 bg-slate-900 border border-white/10 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all active:scale-95"
                 >
-                  <Calendar size={20} />
-                  Organize Events
-                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  <span className="relative flex items-center gap-2">
+                    <Calendar size={20} className="text-slate-400" />
+                    Host a Tournament
+                  </span>
                 </button>
               </div>
             )}
           </div>
+        </div>
+      </div>
 
-          <div className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Gamepad2 size={28} className="text-blue-500" />
-                Select Your Game
-              </h2>
-              {selectedGame && (
-                <button
-                  onClick={() => setSelectedGame(null)}
-                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  Clear Filter
-                </button>
-              )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+        {/* Game Selection Grid */}
+        <div className="mb-24">
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                <Gamepad2 size={24} className="text-blue-400" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black uppercase tracking-tighter italic">Choose Your Game</h2>
+                <p className="text-sm text-slate-500 font-bold uppercase tracking-widest">Select to filter tournaments</p>
+              </div>
             </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {games.map((game) => (
-                <button
-                  key={game.id}
-                  onClick={() => setSelectedGame(game.id === selectedGame ? null : game.id)}
-                  className={`group relative aspect-square rounded-xl overflow-hidden transition-all ${
-                    selectedGame === game.id
-                      ? 'ring-4 ring-blue-500 shadow-lg shadow-blue-500/50'
-                      : 'hover:ring-2 hover:ring-blue-400/50'
-                  }`}
-                >
-                  <img
-                    src={game.icon_url || getGameImage(game.short_name || game.name)}
-                    alt={game.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end justify-center p-3">
-                    <div className="text-center">
-                      <p className="text-white font-bold text-sm">{game.short_name}</p>
-                      <p className="text-xs text-slate-300">{game.platform}</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+            {selectedGame && (
+              <button
+                onClick={() => setSelectedGame(null)}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-bold text-slate-400 transition-all"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
 
-          <TournamentSection
-            title="Registration Open"
-            icon={Users}
-            tournaments={upcomingTournaments}
-            onNavigate={onNavigate}
-            getStatusColor={getStatusColor}
-            formatStatus={formatStatus}
-          />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {games.map((game) => (
+              <button
+                key={game.id}
+                onClick={() => setSelectedGame(game.id === selectedGame ? null : game.id)}
+                className={`group relative aspect-[4/5] rounded-2xl overflow-hidden transition-all duration-300 ${
+                  selectedGame === game.id
+                    ? 'ring-4 ring-blue-500 scale-105 z-10'
+                    : 'hover:scale-105 hover:z-10'
+                }`}
+              >
+                <img
+                  src={game.icon_url || getGameImage(game.short_name || game.name)}
+                  alt={game.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                  <p className="text-white font-black uppercase italic text-lg leading-none mb-1">{game.short_name}</p>
+                  <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">{game.platform}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
 
-          <TournamentSection
-            title="Live Now"
-            icon={Trophy}
-            tournaments={ongoingTournaments}
-            onNavigate={onNavigate}
-            getStatusColor={getStatusColor}
-            formatStatus={formatStatus}
-          />
+        {/* Live Now Section (High Priority) */}
+        <TournamentSection
+          title="Live Now"
+          subtitle="Watch and follow ongoing battles"
+          icon={Activity}
+          tournaments={ongoingTournaments}
+          onNavigate={onNavigate}
+          getStatusColor={getStatusColor}
+          formatStatus={formatStatus}
+          accent="red"
+        />
 
+        {/* Registration Section */}
+        <TournamentSection
+          title="Join the Fight"
+          subtitle="Upcoming tournaments open for registration"
+          icon={Trophy}
+          tournaments={upcomingTournaments}
+          onNavigate={onNavigate}
+          getStatusColor={getStatusColor}
+          formatStatus={formatStatus}
+          accent="blue"
+        />
+
+        {/* Top Teams Section */}
+        <div className="mt-20">
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                <Users size={24} className="text-amber-400" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black uppercase tracking-tighter italic">Top Franchises</h2>
+                <p className="text-sm text-slate-500 font-bold uppercase tracking-widest">Global Ranking Leaderboard</p>
+              </div>
+            </div>
+            <button
+              onClick={() => onNavigate('teams')}
+              className="group flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl transition-all"
+            >
+              <span className="text-sm font-bold text-slate-300">View Rankings</span>
+              <ChevronRight size={18} className="text-slate-500 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {teamsSummary.top.map((t, index) => (
+              <div 
+                key={t.team.id} 
+                className="group relative bg-slate-900/50 border border-white/5 p-6 rounded-3xl hover:border-amber-500/30 transition-all duration-300 overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 p-6">
+                  <span className="text-6xl font-black text-white/5 italic">#{index + 1}</span>
+                </div>
+                
+                <div className="flex flex-col gap-6 relative">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-amber-500 blur-xl opacity-20" />
+                      {t.team.logo_url ? (
+                        <img src={t.team.logo_url} className="w-16 h-16 object-cover rounded-2xl border-2 border-white/10 relative z-10" />
+                      ) : (
+                        <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center relative z-10">
+                          <Trophy size={24} className="text-white" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black uppercase italic text-white group-hover:text-amber-400 transition-colors">
+                        {t.team.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                        {t.team.game?.short_name || 'Global'} Team
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/5 rounded-2xl p-4">
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Total Wins</p>
+                      <p className="text-2xl font-black text-white italic">{t.total_wins || 0}</p>
+                    </div>
+                    <div className="bg-white/5 rounded-2xl p-4">
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Win Rate</p>
+                      <p className="text-2xl font-black text-white italic">
+                        {((t.win_rate || 0) * 100).toFixed(1)}%
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Past Events */}
+        <div className="mt-32">
           <TournamentSection
-            title="Past Tournaments"
+            title="Archives"
+            subtitle="Relive the greatest moments"
             icon={Calendar}
             tournaments={pastTournaments}
             onNavigate={onNavigate}
             getStatusColor={getStatusColor}
             formatStatus={formatStatus}
+            accent="slate"
           />
-
-          <div className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Users size={28} className="text-blue-500" />
-                All Teams
-              </h2>
-              <button
-                onClick={() => onNavigate('teams')}
-                className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium flex items-center gap-1"
-              >
-                View All Teams
-                <ChevronRight size={16} />
-              </button>
-            </div>
-
-            <div className="bg-slate-900/50 p-6 rounded-2xl border border-blue-500/20">
-              <p className="text-slate-300 mb-4">Total teams: <span className="font-bold text-white">{teamsSummary.total}</span></p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {teamsSummary.top.map((t) => (
-                  <div key={t.team.id} className="bg-slate-800/50 rounded-xl p-4">
-                    <div className="flex items-center gap-3">
-                      {t.team.logo_url ? (
-                        <img src={t.team.logo_url} className="w-12 h-12 object-cover rounded-lg" />
-                      ) : (
-                        <div className="w-12 h-12 bg-blue-600 rounded-lg" />
-                      )}
-                      <div>
-                        <div className="font-bold text-white">{t.team.name}</div>
-                        <div className="text-slate-400 text-sm">Wins: {t.total_wins || 0}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -263,29 +325,51 @@ export default function HomePage({ onNavigate }: HomePageProps) {
 
 interface TournamentSectionProps {
   title: string;
+  subtitle: string;
   icon: React.ElementType;
   tournaments: Tournament[];
   onNavigate: (page: string, data?: unknown) => void;
   getStatusColor: (status: string) => string;
   formatStatus: (status: string) => string;
+  accent: 'blue' | 'red' | 'slate';
 }
 
-function TournamentSection({ title, icon: Icon, tournaments, onNavigate, getStatusColor, formatStatus }: TournamentSectionProps) {
+function TournamentSection({ 
+  title, 
+  subtitle, 
+  icon: Icon, 
+  tournaments, 
+  onNavigate, 
+  getStatusColor, 
+  formatStatus,
+  accent 
+}: TournamentSectionProps) {
   if (tournaments.length === 0) return null;
 
+  const accentColors = {
+    blue: 'text-blue-400 bg-blue-500/10 border-blue-500/20 shadow-blue-500/20',
+    red: 'text-red-400 bg-red-500/10 border-red-500/20 shadow-red-500/20',
+    slate: 'text-slate-400 bg-slate-500/10 border-slate-500/20 shadow-slate-500/20'
+  };
+
   return (
-    <div className="mb-12">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Icon size={28} className="text-blue-500" />
-          {title}
-        </h2>
+    <div className="mb-24">
+      <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center gap-4">
+          <div className={`p-3 rounded-xl border ${accentColors[accent].split(' ')[1]} ${accentColors[accent].split(' ')[2]}`}>
+            <Icon size={24} className={accentColors[accent].split(' ')[0]} />
+          </div>
+          <div>
+            <h2 className="text-2xl font-black uppercase tracking-tighter italic">{title}</h2>
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest">{subtitle}</p>
+          </div>
+        </div>
         <button
           onClick={() => onNavigate('tournaments')}
-          className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium flex items-center gap-1"
+          className="group flex items-center gap-2 px-4 py-2 hover:bg-white/5 rounded-xl transition-all"
         >
-          View All
-          <ChevronRight size={16} />
+          <span className="text-sm font-bold text-slate-400 group-hover:text-white">See More</span>
+          <ChevronRight size={18} className="text-slate-600 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
 
@@ -294,48 +378,46 @@ function TournamentSection({ title, icon: Icon, tournaments, onNavigate, getStat
           <button
             key={tournament.id}
             onClick={() => onNavigate('tournament-detail', tournament.id)}
-            className="group bg-slate-900/50 backdrop-blur-sm border border-blue-500/20 rounded-xl overflow-hidden hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all text-left"
+            className="group relative bg-slate-900/40 border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 hover:border-white/20 hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/50 text-left"
           >
-            <div className="relative h-40 overflow-hidden">
+            <div className="relative h-44 overflow-hidden">
               <img
                 src={tournament.banner_url || 'https://community.skin.club/wp-content/uploads/2025/09/cs2.jpg.webp'}
                 alt={tournament.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent"></div>
-              <div className="absolute top-3 right-3">
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(tournament.status)}`}>
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+              <div className="absolute top-4 right-4">
+                <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md ${getStatusColor(tournament.status)}`}>
                   {formatStatus(tournament.status)}
                 </span>
               </div>
             </div>
 
-            <div className="p-4">
-              <h3 className="text-lg font-bold text-white mb-2 line-clamp-1 group-hover:text-blue-400 transition-colors">
+            <div className="p-6">
+              <h3 className="text-xl font-black uppercase tracking-tighter italic text-white mb-4 line-clamp-1 group-hover:text-blue-400 transition-colors">
                 {tournament.name}
               </h3>
 
-              <div className="space-y-2 text-sm text-slate-400">
-                <div className="flex items-center gap-2">
-                  <Gamepad2 size={14} />
-                  <span>{tournament.game?.name}</span>
-                </div>
-                {tournament.region && (
-                  <div className="flex items-center gap-2">
-                    <MapPin size={14} />
-                    <span>{tournament.region}</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-slate-400">
+                  <div className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center">
+                    <Gamepad2 size={12} />
                   </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <Users size={14} />
-                  <span>{(tournament as any).participants?.length ?? tournament.current_participants}/{tournament.max_participants} Participants</span>
+                  <span className="text-xs font-bold uppercase tracking-widest">{tournament.game?.name}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Calendar size={14} />
-                  <span>{formatInUserTZ(tournament.start_date)}</span>
+                
+                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Combatants</span>
+                    <span className="text-xs font-black text-white uppercase italic">{tournament.current_participants} / {tournament.max_participants}</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Prize</span>
+                    <span className="text-xs font-black text-amber-400 uppercase italic">{tournament.prize_pool || 'Trophy'}</span>
+                  </div>
                 </div>
-                  <div className="text-sm text-slate-400">{relativeTimeFromNow(tournament.start_date)}</div>
-                </div>
+              </div>
             </div>
           </button>
         ))}

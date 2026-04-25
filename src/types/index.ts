@@ -38,6 +38,7 @@ export interface UserProfile {
   role: UserRole;
   bio: string | null;
   region: string | null;
+  roles?: string[];
   created_at: string;
   // optional admin fields
   is_banned?: boolean;
@@ -170,9 +171,11 @@ export interface Match {
   completed_at: string | null;
   stream_url: string | null;
   created_at: string;
+  end_time?: string | null; // Virtual field for scheduling
   participant1?: TournamentParticipant;
   participant2?: TournamentParticipant;
   winner?: TournamentParticipant;
+  match_results?: MatchResult[];
 }
 
 export interface MatchResult {
@@ -190,4 +193,35 @@ export interface BracketNode {
   participant1?: TournamentParticipant;
   participant2?: TournamentParticipant;
   nextMatch?: string;
+}
+
+export type NotificationType = 'invite' | 'match_update' | 'tournament_update' | 'system';
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export type ScoutingPostType = 'player_looking' | 'team_vacancy';
+export type ScoutingPostStatus = 'active' | 'fulfilled' | 'expired';
+
+export interface ProScoutingPost {
+  id: string;
+  type: ScoutingPostType;
+  user_id: string;
+  team_id: string | null;
+  game_id: string;
+  roles: string[];
+  description: string | null;
+  status: ScoutingPostStatus;
+  created_at: string;
+  user?: UserProfile;
+  team?: Team;
+  game?: Game;
 }

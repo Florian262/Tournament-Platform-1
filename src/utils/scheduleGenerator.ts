@@ -32,8 +32,8 @@ export function generateTournamentSchedule(
       const end = new Date(start.getTime() + matchDurationMinutes * 60000);
 
       roundMatches[i].scheduled_at = start.toISOString();
-      // attach end time into `completed_at` as a scheduling placeholder (UI reads scheduled_at)
-      (roundMatches[i] as any).end_time = end.toISOString();
+      // attach end time as a scheduling placeholder (UI reads scheduled_at)
+      roundMatches[i].end_time = end.toISOString();
     }
 
     // compute duration for the whole round to start next round after

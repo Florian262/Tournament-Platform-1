@@ -61,13 +61,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setProfile(profileData);
           // If profile missing or missing common fields, offer to import from OAuth provider metadata
           try {
-            const metadata: any = (session.user as any).user_metadata ?? {};
+            const metadata = (session.user.user_metadata as Record<string, any>) ?? {};
             const suggestedUsername = metadata.name || metadata.preferred_username || metadata.username || null;
             const suggestedAvatar = metadata.avatar_url || metadata.picture || null;
 
             if (profileData == null && suggestedUsername) {
-              // create basic profile if none exists
-              await supabase.from('user_profiles').insert({ id: session.user.id, username: suggestedUsername, avatar_url: suggestedAvatar }).throwOnError();
+              // Try to create profile, handle username collisions gracefully
+              let finalUsername = suggestedUsername;
+              try {
+                const { error: insertError } = await supabase.from('user_profiles').upsert({ 
+                  id: session.user.id, 
+                  username: finalUsername, 
+                  avatar_url: suggestedAvatar 
+                }, { onConflict: 'id' });
+
+                // If duplicate username error (23505), try once more with a random suffix
+                if (insertError && (insertError as any).code === '23505') {
+                  finalUsername = `${suggestedUsername}_${Math.floor(1000 + Math.random() * 9000)}`;
+                  await supabase.from('user_profiles').upsert({ 
+                    id: session.user.id, 
+                    username: finalUsername, 
+                    avatar_url: suggestedAvatar 
+                  }, { onConflict: 'id' }).throwOnError();
+                } else if (insertError) {
+                  throw insertError;
+                }
+              } catch (upsertErr) {
+                console.warn('Silent profile creation failed:', upsertErr);
+              }
+              
               const newProfile = await fetchProfile(session.user.id);
               setProfile(newProfile);
             } else if (profileData && ( !profileData.avatar_url && suggestedAvatar )) {
@@ -81,9 +103,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 }
               }
             }
-          } catch (e) {
+          } catch (err) {
             // ignore non-critical import errors
-            console.warn('OAuth profile import skipped:', e);
+            console.warn('OAuth profile import skipped:', err);
           }
         } else {
           setProfile(null);
@@ -96,6 +118,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, username: string, role: 'competitor' | 'organizer') => {
+    // 1. Check if username is already taken
+    const { data: existingUser, error: checkError } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('username', username)
+      .maybeSingle();
+    
+    if (checkError) throw checkError;
+    if (existingUser) {
+      throw new Error('Username is already taken. Please choose another one.');
+    }
+
+    // 2. Perform Auth SignUp
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -109,27 +144,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (error) throw error;
 
+    // 3. Create Profile
     // If the user is immediately signed in (no email confirmation required),
-    // create the profile now. If sign-up requires email confirmation, the
-    // profile will be created later by the onAuthStateChange handler which
-    // imports metadata from the auth user.
-    try {
-      const session = await supabase.auth.getSession();
-      const sessionUserId = session.data.session?.user?.id ?? null;
+    // create the profile now. 
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: data.user.id,
+          username,
+          role,
+        });
 
-      if (data.user && sessionUserId === data.user.id) {
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: data.user.id,
-            username,
-            role,
-          });
-
-        if (profileError) console.warn('Profile insert skipped:', profileError.message || profileError);
+      if (profileError) {
+        // If profile creation fails, we have an auth user without a profile.
+        // We should inform the user.
+        console.error('Profile creation failed:', profileError);
+        throw new Error('Account created but profile setup failed: ' + (profileError.message || 'Unknown error'));
       }
-    } catch (e) {
-      console.warn('SignUp post-processing warning:', e);
     }
   };
 

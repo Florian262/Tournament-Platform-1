@@ -1,16 +1,17 @@
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
+import LiveTicker from './components/LiveTicker';
 import Footer from './components/Footer';
 import HomePage from './components/HomePage';
 import TournamentListings from './components/TournamentListings';
 import TournamentDashboard from './components/TournamentDashboard';
 import CreateTournament from './components/CreateTournament';
 import ManageTournament from './components/ManageTournament';
-import TeamProfilePage from './components/TeamProfilePage';
-import TeamsDashboard from './components/TeamsDashboard';
 import PlayerProfilePage from './components/PlayerProfilePage';
 import PlayerSearch from './components/PlayerSearch';
+import TeamsDashboard from './components/TeamsDashboard';
+import TeamProfilePage from './components/TeamProfilePage';
 import AdminDashboard from './components/AdminDashboard';
 
 import PrivacyPolicy from './components/privacy/PrivacyPolicy';
@@ -20,10 +21,14 @@ import HelpCenter from './components/privacy/HelpCenter';
 import RulesGuidelines from './components/privacy/RulesGuidelines';
 import ContactUs from './components/privacy/ContactUs';
 
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 function AppInner() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Derived from current path for Navbar highlighting
+  const currentPage = location.pathname === '/' ? 'home' : location.pathname.substring(1).split('/')[0];
 
   const handleNavigate = (page: string, data?: unknown) => {
     let path = '/';
@@ -73,28 +78,34 @@ function AppInner() {
   return (
     <div className="min-h-screen bg-slate-950">
       <Toaster />
-      <Navbar onNavigate={handleNavigate} currentPage={undefined as any} />
+      <LiveTicker />
+      <Navbar onNavigate={handleNavigate} currentPage={currentPage} />
 
-      <Routes>
-        <Route path="/" element={<HomePage onNavigate={handleNavigate} />} />
-        <Route path="/tournaments" element={<TournamentListings onNavigate={handleNavigate} />} />
-        <Route path="/tournaments/:id" element={<TournamentWrapper />} />
-        <Route path="/create-tournament" element={<CreateTournament onNavigate={handleNavigate} />} />
-        <Route path="/manage-tournament/:id" element={<ManageTournamentWrapper />} />
-        <Route path="/teams" element={<TeamsDashboard onNavigate={handleNavigate} />} />
-        <Route path="/teams/:id" element={<TeamWrapper />} />
-        <Route path="/players" element={<PlayerSearch onNavigate={handleNavigate} />} />
-        <Route path="/players/:id" element={<PlayerWrapper />} />
-        <Route path="/admin" element={<AdminDashboard onNavigate={handleNavigate} />} />
+      <main className="pt-28">
+        <Routes>
+          <Route path="/" element={<HomePage onNavigate={handleNavigate} />} />
+          <Route path="/tournaments" element={<TournamentListings onNavigate={handleNavigate} />} />
+          <Route path="/tournaments/:id" element={<TournamentWrapper />} />
+          <Route path="/create-tournament" element={<CreateTournament onNavigate={handleNavigate} />} />
+          <Route path="/manage-tournament/:id" element={<ManageTournamentWrapper />} />
+          
+          <Route path="/teams" element={<TeamsDashboard onNavigate={handleNavigate} />} />
+          <Route path="/teams/:id" element={<TeamWrapper />} />
+          
+          <Route path="/players" element={<PlayerSearch onNavigate={handleNavigate} />} />
+          <Route path="/players/:id" element={<PlayerWrapper />} />
+          
+          <Route path="/admin" element={<AdminDashboard onNavigate={handleNavigate} />} />
 
-        {/* Legal / Support */}
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/cookies" element={<CookiePolicy />} />
-        <Route path="/help" element={<HelpCenter />} />
-        <Route path="/rules" element={<RulesGuidelines />} />
-        <Route path="/contact" element={<ContactUs />} />
-      </Routes>
+          {/* Legal / Support */}
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="/rules" element={<RulesGuidelines />} />
+          <Route path="/contact" element={<ContactUs />} />
+        </Routes>
+      </main>
 
       <Footer />
     </div>

@@ -38,7 +38,6 @@ export default function Avatar({ src, username, size = 40, className = '' }: Ava
 
   if (!showFallback) {
     return (
-      // eslint-disable-next-line jsx-a11y/img-redundant-alt
       <img
         src={src as string}
         alt={username || 'avatar'}

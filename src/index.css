@@ -1,3 +1,101 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-200 antialiased selection:bg-blue-500/30;
+  }
+
+  /* Custom Scrollbar - Command Center Style */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full hover:bg-blue-500/40 transition-colors;
+  }
+
+  /* Standard Scrollbar for the whole app */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-950;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/5 border-4 border-slate-950 rounded-full hover:bg-blue-500/20 transition-colors;
+  }
+}
+
+@layer utilities {
+  .text-glow-blue {
+    text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  }
+  
+  .text-glow-red {
+    text-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+  }
+
+  /* Holographic Card Effect */
+  .holo-card {
+    @apply relative overflow-hidden;
+  }
+
+  .holo-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none;
+    background: linear-gradient(
+      125deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 30%,
+      rgba(59, 130, 246, 0.1) 45%,
+      rgba(255, 255, 255, 0.05) 60%,
+      transparent 100%
+    );
+    z-index: 1;
+  }
+
+  .holo-card:hover::before {
+    @apply opacity-100;
+    animation: holo-shimmer 3s infinite linear;
+  }
+
+  @keyframes holo-shimmer {
+    0% { transform: translateX(-100%) translateY(-100%); }
+    100% { transform: translateX(100%) translateY(100%); }
+  }
+
+  .animate-shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+  }
+
+  @keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-ticker {
+    display: inline-flex;
+    white-space: nowrap;
+    animation: ticker-scroll 30s linear infinite;
+  }
+
+  .animate-ticker:hover {
+    animation-play-state: paused;
+  }
+}

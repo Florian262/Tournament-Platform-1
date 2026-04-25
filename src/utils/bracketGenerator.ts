@@ -1,27 +1,31 @@
-import { TournamentParticipant, Match } from '../types';
+import { TournamentParticipant, Match, MatchStatus } from '../types';
 
-function seededPairs(participants: TournamentParticipant[]) {
+function seededPairs(participants: (TournamentParticipant | null)[]) {
   const n = participants.length;
   const pairs: Array<[TournamentParticipant | null, TournamentParticipant | null]> = [];
-
-  for (let i = 0; i < Math.ceil(n / 2); i++) {
-    const a = participants[i] ?? null;
-    const b = participants[n - 1 - i] ?? null;
-    pairs.push([a, b]);
+  for (let i = 0; i < n / 2; i++) {
+    pairs.push([participants[i], participants[n - 1 - i]]);
   }
-
   return pairs;
 }
 
 export function generateSingleElimination(participants: TournamentParticipant[], tournamentId?: string): Match[] {
-  // ensure participants ordered by seed ascending (1 = highest seed)
-  const ordered = [...participants].sort((a, b) => {
-    const sa = a.seed ?? 9999;
-    const sb = b.seed ?? 9999;
-    return sa - sb;
-  });
+  const n = participants.length;
+  if (n === 0) return [];
 
-  const pairs = seededPairs(ordered);
+  // 1. Calculate next power of 2
+  const nextPowerOf2 = Math.pow(2, Math.ceil(Math.log2(n)));
+
+  // 2. Sort participants by seed
+  const ordered = [...participants].sort((a, b) => (a.seed ?? 9999) - (b.seed ?? 9999));
+
+  // 3. Pad with nulls to nextPowerOf2
+  const padded: (TournamentParticipant | null)[] = [...ordered];
+  while (padded.length < nextPowerOf2) {
+    padded.push(null);
+  }
+
+  const pairs = seededPairs(padded);
 
   const matches: Match[] = [];
   let matchNumber = 1;
@@ -33,7 +37,7 @@ export function generateSingleElimination(participants: TournamentParticipant[],
     const winner_id = isBye ? (p1 ? p1.id : p2 ? p2.id : null) : null;
 
     matches.push({
-      id: `g-${1}-${matchNumber}`,
+      id: `g-1-${matchNumber}`,
       tournament_id: tournamentId ?? '',
       round: 1,
       match_number: matchNumber,
@@ -41,7 +45,7 @@ export function generateSingleElimination(participants: TournamentParticipant[],
       participant1_id: p1 ? p1.id : null,
       participant2_id: p2 ? p2.id : null,
       winner_id: winner_id ?? null,
-      status: status as any,
+      status: status as MatchStatus,
       scheduled_at: null,
       started_at: null,
       completed_at: null,

@@ -4,7 +4,7 @@ export function formatInUserTZ(dateString: string | null) {
     const date = new Date(dateString);
     const opts: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
     return new Intl.DateTimeFormat(undefined, opts).format(date);
-  } catch (e) {
+  } catch {
     return dateString;
   }
 }
@@ -15,7 +15,7 @@ export function formatTimeOnlyInUserTZ(dateString: string | null) {
     const date = new Date(dateString);
     const opts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
     return new Intl.DateTimeFormat(undefined, opts).format(date);
-  } catch (e) {
+  } catch {
     return dateString;
   }
 }
