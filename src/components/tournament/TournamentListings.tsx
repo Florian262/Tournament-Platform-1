@@ -1,8 +1,8 @@
 import { Filter, Users, Calendar, MapPin, Trophy, Search, X, ChevronRight, LayoutGrid } from 'lucide-react';
-import { getGameImage } from '../utils/gameImages';
-import { useTournaments } from '../hooks/useTournaments';
-import { useGames } from '../hooks/useGames';
-import { useTournamentStore } from '../store/useTournamentStore';
+import { getGameImage } from '../../utils/gameImages';
+import { useTournaments } from '../../hooks/useTournaments';
+import { useGames } from '../../hooks/useGames';
+import { useTournamentStore } from '../../store/useTournamentStore';
 
 interface TournamentListingsProps {
   onNavigate: (page: string, data?: unknown) => void;
@@ -131,7 +131,7 @@ export default function TournamentListings({ onNavigate }: TournamentListingsPro
                     className="w-full px-4 py-4 bg-slate-950 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none cursor-pointer"
                   >
                     <option value="">All games</option>
-                    {games.map((game) => (
+                    {(games as any[]).map((game) => (
                       <option key={game.id} value={game.id}>{game.name}</option>
                     ))}
                   </select>
@@ -186,7 +186,7 @@ export default function TournamentListings({ onNavigate }: TournamentListingsPro
                   <div key={i} className="h-80 bg-white/5 rounded-[2.5rem] animate-pulse" />
                 ))}
               </div>
-            ) : tournaments.length === 0 ? (
+            ) : (tournaments as any[]).length === 0 ? (
               <div className="text-center py-32 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10">
                 <Trophy size={64} className="text-slate-800 mx-auto mb-6" />
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic text-slate-500">No events found</h2>
@@ -194,7 +194,7 @@ export default function TournamentListings({ onNavigate }: TournamentListingsPro
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {tournaments.map((tournament) => (
+                {(tournaments as any[]).map((tournament) => (
                   <button
                     key={tournament.id}
                     onClick={() => onNavigate('tournament-detail', tournament.id)}

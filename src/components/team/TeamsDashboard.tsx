@@ -3,10 +3,10 @@ import {
   Users, Plus, ChevronRight, Trophy, 
   Gamepad2, Search, Mail, Check, X 
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useTeams } from '../hooks/useTeams';
-import { useGames } from '../hooks/useGames';
-import { useUserInvites, useInviteMutations } from '../hooks/useTeamInvites';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTeams } from '../../hooks/useTeams';
+import { useGames } from '../../hooks/useGames';
+import { useUserInvites, useInviteMutations } from '../../hooks/useTeamInvites';
 import TeamManagementModal from './TeamManagementModal';
 
 interface TeamsDashboardProps {
@@ -24,7 +24,7 @@ export default function TeamsDashboard({ onNavigate }: TeamsDashboardProps) {
   const { data: userInvites = [] } = useUserInvites(user?.id);
   const { respondToInvite } = useInviteMutations();
 
-  const filteredTeams = teams.filter(t => 
+  const filteredTeams = teams.filter((t: any) => 
     t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.tag.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -132,7 +132,7 @@ export default function TeamsDashboard({ onNavigate }: TeamsDashboardProps) {
                   className="pl-12 pr-10 py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none font-bold uppercase tracking-widest text-xs text-white"
                 >
                   <option value="">All Disciplines</option>
-                  {games.map(g => (
+                  {games.map((g: any) => (
                     <option key={g.id} value={g.id}>{g.short_name}</option>
                   ))}
                 </select>
@@ -149,7 +149,7 @@ export default function TeamsDashboard({ onNavigate }: TeamsDashboardProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTeams.map((team) => (
+            {filteredTeams.map((team: any) => (
               <button
                 key={team.id}
                 onClick={() => onNavigate('team-profile', team.id)}
@@ -231,3 +231,4 @@ export default function TeamsDashboard({ onNavigate }: TeamsDashboardProps) {
     </div>
   );
 }
+

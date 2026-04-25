@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { X, Users, CheckCircle2, Shield, ArrowRight, Zap } from 'lucide-react';
-import { useUserTeams } from '../hooks/useTeams';
-import { supabase } from '../lib/supabase';
-import { Team, Tournament, TeamMember } from '../types';
-import { useNotifications } from '../hooks/useNotifications';
+import { useUserTeams } from '../../hooks/useTeams';
+import { supabase } from '../../lib/supabase';
+import { Team, Tournament, TeamMember } from '../../types';
+import { useNotifications } from '../../hooks/useNotifications';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import Avatar from './Avatar';
+import Avatar from '../ui/Avatar';
 
 interface QuickJoinModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface QuickJoinModalProps {
 
 export default function QuickJoinModal({ isOpen, onClose, tournament, user, onSuccess }: QuickJoinModalProps) {
   const queryClient = useQueryClient();
-  const { data: ownedTeams = [], isLoading: loadingTeams } = useUserTeams(user?.id);
+  const { data: ownedTeams = [] } = useUserTeams(user?.id);
   const { sendNotification } = useNotifications();
   
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
@@ -27,7 +27,7 @@ export default function QuickJoinModal({ isOpen, onClose, tournament, user, onSu
   const [deploying, setDeploying] = useState(false);
 
   // Filter teams by game
-  const eligibleTeams = ownedTeams.filter(t => t.game_id === tournament.game_id);
+  const eligibleTeams = ownedTeams.filter((t: any) => t.game_id === tournament.game_id);
 
   useEffect(() => {
     if (eligibleTeams.length > 0 && !selectedTeam) {
@@ -57,7 +57,7 @@ export default function QuickJoinModal({ isOpen, onClose, tournament, user, onSu
     setDeploying(true);
 
     try {
-      // 1. Register the Team (Trigger handles the tournament count)
+      // 1. Register the Team
       const { error: regError } = await supabase
         .from('tournament_participants')
         .insert({
@@ -119,11 +119,7 @@ export default function QuickJoinModal({ isOpen, onClose, tournament, user, onSu
           <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] mt-4">Initialize registration for {tournament.name}</p>
         </div>
 
-        {loadingTeams ? (
-           <div className="flex-1 flex items-center justify-center py-20">
-              <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-           </div>
-        ) : eligibleTeams.length === 0 ? (
+        {eligibleTeams.length === 0 ? (
            <div className="flex-1 text-center py-20 bg-white/5 rounded-3xl border border-dashed border-white/10 px-8">
               <Users size={48} className="text-slate-800 mx-auto mb-6" />
               <h3 className="text-xl font-black uppercase italic text-slate-500 mb-2">No Eligible Rosters</h3>
@@ -134,7 +130,7 @@ export default function QuickJoinModal({ isOpen, onClose, tournament, user, onSu
              <div className="space-y-4">
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Select Franchise</label>
                 <div className="grid grid-cols-1 gap-2">
-                   {eligibleTeams.map(t => (
+                   {eligibleTeams.map((t: any) => (
                       <button
                         key={t.id}
                         onClick={() => setSelectedTeam(t)}

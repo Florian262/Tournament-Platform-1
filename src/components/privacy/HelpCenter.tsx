@@ -1,4 +1,4 @@
-import LegalPageLayout from '../LegalPageLayout';
+import LegalPageLayout from '../layout/LegalPageLayout';
 
 export default function HelpCenter() {
   return (

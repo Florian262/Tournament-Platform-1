@@ -1,23 +1,24 @@
 import { useEffect, useState } from 'react';
 import {
   Trophy, Users, Calendar, Tv, Info, ArrowLeft,
-  Shield, ExternalLink, Clock, Award, ArrowRight
+  Shield, ExternalLink,
+  Clock, Award, ArrowRight
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { formatInUserTZ, relativeTimeFromNow } from '../utils/time';
-import { Tournament, TournamentParticipant, Match } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import { useNotifications } from '../hooks/useNotifications';
-import { useUserTeams } from '../hooks/useTeams';
+import { supabase } from '../../lib/supabase';
+import { formatInUserTZ, relativeTimeFromNow } from '../../utils/time';
+import { Tournament, TournamentParticipant, Match } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useUserTeams } from '../../hooks/useTeams';
 import { useQueryClient } from '@tanstack/react-query';
-import AuthModal from './AuthModal';
+import AuthModal from '../auth/AuthModal';
 import QuickJoinModal from './QuickJoinModal';
-import requireAuth from '../utils/actionGate';
+import requireAuth from '../../utils/actionGate';
 import toast from 'react-hot-toast';
-import generateSingleElimination from '../utils/bracketGenerator';
-import InteractiveBracket from './tournament/InteractiveBracket';
-import ScheduleTab from './tournament/ScheduleTab';
-import Avatar from './Avatar';
+import generateSingleElimination from '../../utils/bracketGenerator';
+import InteractiveBracket from './InteractiveBracket';
+import ScheduleTab from './ScheduleTab';
+import Avatar from '../ui/Avatar';
 
 interface TournamentDashboardProps {
   tournamentId: string;
@@ -70,12 +71,12 @@ export default function TournamentDashboard({ tournamentId, onNavigate }: Tourna
 
       if (user && tournamentData) {
         if (tournamentData.participant_type === 'team') {
-          const isTeamReg = participantsData.some(p => 
-            p.team_id && userTeams.some(ut => ut.id === p.team_id)
+          const isTeamReg = participantsData.some((p: any) => 
+            p.team_id && userTeams.some((ut: any) => ut.id === p.team_id)
           );
           setIsRegistered(isTeamReg);
         } else {
-          const userParticipant = participantsData.find(p => p.user_id === user.id);
+          const userParticipant = participantsData.find((p: any) => p.user_id === user.id);
           setIsRegistered(!!userParticipant);
         }
       }
@@ -191,6 +192,7 @@ export default function TournamentDashboard({ tournamentId, onNavigate }: Tourna
 
   return (
     <div className="min-h-screen bg-slate-950 text-white selection:bg-blue-500/30">
+      {/* Cinematic Hero Header */}
       <div className="relative h-[450px] overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -281,6 +283,7 @@ export default function TournamentDashboard({ tournamentId, onNavigate }: Tourna
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pb-20">
+        {/* Navigation Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-6 scrollbar-hide">
           {[
             { id: 'overview', label: 'Briefing', icon: Info },
@@ -304,6 +307,7 @@ export default function TournamentDashboard({ tournamentId, onNavigate }: Tourna
           ))}
         </div>
 
+        {/* Content Area */}
         <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in-95 duration-500">
           {activeTab === 'overview' && (
             <OverviewTab tournament={tournament} participants={participants} />
@@ -548,7 +552,7 @@ function StreamsTab({ streamUrl }: { streamUrl: string | null }) {
         </button>
       </div>
       <div className="aspect-video bg-black rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl">
-        <iframe src={embedUrl} className="w-full h-full" allowFullScreen allow="autoplay; fullscreen" />
+        <iframe src={embedUrl} className="w-full h-full" title="Tournament Stream" allowFullScreen allow="autoplay; fullscreen" />
       </div>
     </div>
   );

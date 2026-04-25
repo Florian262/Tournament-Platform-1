@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Match, TournamentParticipant } from '../../types';
-import MatchCard from '../MatchCard';
-import MatchResultSubmission from '../MatchResultSubmission';
+import MatchCard from './MatchCard';
+import MatchResultSubmission from './MatchResultSubmission';
 import { useAuth } from '../../contexts/AuthContext';
 import { Clock } from 'lucide-react';
 

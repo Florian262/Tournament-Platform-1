@@ -3,9 +3,9 @@ import {
   Users, Shield, Activity, 
   Trophy, Hash, AlertTriangle, Search, Filter 
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { UserProfile, AuditLog } from '../types';
-import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
+import { UserProfile, AuditLog } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 interface AdminDashboardProps {

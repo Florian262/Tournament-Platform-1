@@ -5,10 +5,10 @@ import {
   LogOut, LayoutDashboard, Plus,
   Bell, Activity
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useNotifications } from '../hooks/useNotifications';
-import AuthModal from './AuthModal';
-import Avatar from './Avatar';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotifications } from '../../hooks/useNotifications';
+import AuthModal from '../auth/AuthModal';
+import Avatar from '../ui/Avatar';
 
 interface NavbarProps {
   onNavigate: (page: string, data?: unknown) => void;

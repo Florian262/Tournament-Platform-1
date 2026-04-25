@@ -10,7 +10,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Match, TournamentParticipant } from '../../types';
-import MatchResultSubmission from '../MatchResultSubmission';
+import MatchResultSubmission from './MatchResultSubmission';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface MatchNodeData {

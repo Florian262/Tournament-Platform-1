@@ -4,12 +4,12 @@ import {
   Star, Users, Plus, X,
   ChevronRight, AlertCircle
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useUserTeams } from '../hooks/useTeams';
-import { useInviteMutations } from '../hooks/useTeamInvites';
-import { useScoutingPosts, useScoutingMutations } from '../hooks/useProScouting';
-import { useGames } from '../hooks/useGames';
-import Avatar from './Avatar';
+import { useAuth } from '../../contexts/AuthContext';
+import { useUserTeams } from '../../hooks/useTeams';
+import { useInviteMutations } from '../../hooks/useTeamInvites';
+import { useScoutingPosts, useScoutingMutations } from '../../hooks/useProScouting';
+import { useGames } from '../../hooks/useGames';
+import Avatar from '../ui/Avatar';
 import toast from 'react-hot-toast';
 
 interface ScoutingHubProps {
@@ -66,7 +66,7 @@ export default function ScoutingHub({ onNavigate }: ScoutingHubProps) {
     }));
   };
 
-  const filteredPosts = posts.filter(p => 
+  const filteredPosts = posts.filter((p: any) => 
     p.user?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.team?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.description?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -143,7 +143,7 @@ export default function ScoutingHub({ onNavigate }: ScoutingHubProps) {
                         className="w-full px-4 py-4 bg-slate-950 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none cursor-pointer"
                       >
                         <option value="">All games</option>
-                        {games.map(g => (
+                        {games.map((g: any) => (
                           <option key={g.id} value={g.id}>{g.short_name}</option>
                         ))}
                       </select>
@@ -179,7 +179,7 @@ export default function ScoutingHub({ onNavigate }: ScoutingHubProps) {
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
-                {filteredPosts.map((post) => (
+                {filteredPosts.map((post: any) => (
                   <div
                     key={post.id}
                     className="group relative bg-slate-900/40 border border-white/5 rounded-[2.5rem] p-8 transition-all hover:border-blue-500/30 overflow-hidden"
@@ -211,7 +211,7 @@ export default function ScoutingHub({ onNavigate }: ScoutingHubProps) {
                             {activeTab === 'players' ? post.user?.username : post.team?.name}
                           </h3>
                           <div className="flex flex-wrap gap-2 mt-3">
-                            {post.roles.map((role, i) => (
+                            {post.roles.map((role: any, i: number) => (
                               <span key={i} className="px-2 py-1 bg-white/5 border border-white/5 rounded text-[8px] font-black text-slate-400 uppercase tracking-widest">
                                 {role}
                               </span>
@@ -313,7 +313,7 @@ export default function ScoutingHub({ onNavigate }: ScoutingHubProps) {
                       className="w-full px-4 py-4 bg-slate-950 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
                       <option value="">Select game</option>
-                      {games.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                      {games.map((g: any) => <option key={g.id} value={g.id}>{g.name}</option>)}
                     </select>
                  </div>
 
@@ -327,7 +327,7 @@ export default function ScoutingHub({ onNavigate }: ScoutingHubProps) {
                         className="w-full px-4 py-4 bg-slate-950 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                       >
                         <option value="">Select team</option>
-                        {ownedTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                        {ownedTeams.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
                       </select>
                     </div>
                  )}

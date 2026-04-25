@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { X, Users, Trophy, Gamepad2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Team } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import { useGames } from '../hooks/useGames';
+import { supabase } from '../../lib/supabase';
+import { Team } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
+import { useGames } from '../../hooks/useGames';
 
 interface TeamManagementModalProps {
   isOpen: boolean;
@@ -226,7 +226,7 @@ export default function TeamManagementModal({
             <div>
               <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Select Discipline *</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {games.map((g) => (
+                {games.map((g: any) => (
                   <button
                     key={g.id}
                     type="button"

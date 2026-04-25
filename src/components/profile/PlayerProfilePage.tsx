@@ -5,10 +5,10 @@ import {
   Star, Users, Edit3, Save, X, Copy, Check,
   Camera
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
-import { UserProfile, PlayerStatistics, Tournament, Team } from '../types';
-import Avatar from './Avatar';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
+import { UserProfile, PlayerStatistics, Tournament, Team } from '../../types';
+import Avatar from '../ui/Avatar';
 import toast from 'react-hot-toast';
 
 interface PlayerProfilePageProps {
@@ -364,3 +364,4 @@ export default function PlayerProfilePage({ userId, onNavigate }: PlayerProfileP
     </div>
   );
 }
+

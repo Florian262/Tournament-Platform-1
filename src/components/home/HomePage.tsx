@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Gamepad2, Trophy, Calendar, Users, ChevronRight, Activity, Flame } from 'lucide-react';
-import { getGameImage } from '../utils/gameImages';
-import { supabase } from '../lib/supabase';
-import { Game, Tournament } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import AuthModal from './AuthModal';
+import { getGameImage } from '../../utils/gameImages';
+import { supabase } from '../../lib/supabase';
+import { Game, Tournament } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
+import AuthModal from '../auth/AuthModal';
 
 interface HomePageProps {
   onNavigate: (page: string, data?: unknown) => void;
@@ -35,13 +35,13 @@ export default function HomePage({ onNavigate }: HomePageProps) {
     if (data) {
       const now = new Date();
 
-      const upcoming = data.filter(t =>
+      const upcoming = data.filter((t: any) =>
         t.status === 'registration_open' ||
         (t.status === 'pending' && new Date(t.start_date) > now)
       );
 
-      const ongoing = data.filter(t => t.status === 'running');
-      const past = data.filter(t => t.status === 'completed');
+      const ongoing = data.filter((t: any) => t.status === 'running');
+      const past = data.filter((t: any) => t.status === 'completed');
 
       setUpcomingTournaments(upcoming.slice(0, 4));
       setOngoingTournaments(ongoing.slice(0, 4));
@@ -249,7 +249,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {teamsSummary.top.map((t, index) => (
+            {teamsSummary.top.map((t: any, index: number) => (
               <div 
                 key={t.team.id} 
                 className="group relative bg-slate-900/50 border border-white/5 p-6 rounded-3xl hover:border-amber-500/30 transition-all duration-300 overflow-hidden"

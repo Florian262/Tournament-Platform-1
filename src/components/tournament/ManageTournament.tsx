@@ -3,15 +3,15 @@ import {
   ArrowLeft, Users, Trophy, Play, X, Shield, 
   Edit3, Save, LayoutGrid 
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Tournament, TournamentParticipant, Game } from '../types';
-import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
+import { Tournament, TournamentParticipant, Game } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   generateSingleEliminationBracket,
   generateDoubleEliminationBracket,
   generateRoundRobinMatches,
-} from '../utils/bracketGenerator';
-import { generateTournamentSchedule } from '../utils/scheduleGenerator';
+} from '../../utils/bracketGenerator';
+import { generateTournamentSchedule } from '../../utils/scheduleGenerator';
 import toast from 'react-hot-toast';
 
 interface ManageTournamentProps {

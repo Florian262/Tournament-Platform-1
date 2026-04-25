@@ -4,11 +4,11 @@ import {
   Check, UserPlus, Clock, Shield,
   Settings, ExternalLink, Gamepad2
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Team, TeamMember, TeamStatistics } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import { useInviteMutations } from '../hooks/useTeamInvites';
-import Avatar from './Avatar';
+import { supabase } from '../../lib/supabase';
+import { Team, TeamMember, TeamStatistics } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
+import { useInviteMutations } from '../../hooks/useTeamInvites';
+import Avatar from '../ui/Avatar';
 import toast from 'react-hot-toast';
 
 interface TeamProfilePageProps {

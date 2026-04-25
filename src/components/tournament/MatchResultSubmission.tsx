@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { X, Send, AlertCircle, CheckCircle, Trophy } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Match, TournamentParticipant } from '../types';
-import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
+import { Match, TournamentParticipant, MatchResult } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface MatchResultSubmissionProps {
   isOpen: boolean;
@@ -48,8 +48,8 @@ export default function MatchResultSubmission({
 
     if (data && data.length >= 2) {
       setScores({
-        participant1Score: data.find(r => r.participant_id === match.participant1_id)?.score.toString() || '',
-        participant2Score: data.find(r => r.participant_id === match.participant2_id)?.score.toString() || '',
+        participant1Score: data.find((r: MatchResult) => r.participant_id === match.participant1_id)?.score.toString() || '',
+        participant2Score: data.find((r: MatchResult) => r.participant_id === match.participant2_id)?.score.toString() || '',
         notes: (data[0].stats as any)?.notes || '',
       });
     }

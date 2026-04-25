@@ -1,4 +1,4 @@
-import { useLiveMatches } from '../hooks/useLiveMatches';
+import { useLiveMatches } from '../../hooks/useLiveMatches';
 import { Trophy, Activity } from 'lucide-react';
 
 export default function LiveTicker() {

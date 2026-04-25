@@ -1,5 +1,5 @@
 import { User, Trophy, Activity, Clock } from 'lucide-react';
-import { Match } from '../types';
+import { Match } from '../../types';
 
 interface MatchCardProps {
   match: Match;
@@ -11,8 +11,8 @@ export default function MatchCard({ match, onClick }: MatchCardProps) {
   const p2 = match.participant2;
 
   const results = match.match_results || [];
-  const p1Score = results.find(r => r.participant_id === match.participant1_id)?.score || 0;
-  const p2Score = results.find(r => r.participant_id === match.participant2_id)?.score || 0;
+  const p1Score = results.find((r: any) => r.participant_id === match.participant1_id)?.score || 0;
+  const p2Score = results.find((r: any) => r.participant_id === match.participant2_id)?.score || 0;
 
   const getStatusDisplay = () => {
     switch (match.status) {

@@ -1,18 +1,18 @@
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
-import Navbar from './components/Navbar';
-import LiveTicker from './components/LiveTicker';
-import Footer from './components/Footer';
-import HomePage from './components/HomePage';
-import TournamentListings from './components/TournamentListings';
-import TournamentDashboard from './components/TournamentDashboard';
-import CreateTournament from './components/CreateTournament';
-import ManageTournament from './components/ManageTournament';
-import PlayerProfilePage from './components/PlayerProfilePage';
-import PlayerSearch from './components/PlayerSearch';
-import TeamsDashboard from './components/TeamsDashboard';
-import TeamProfilePage from './components/TeamProfilePage';
-import AdminDashboard from './components/AdminDashboard';
+import Navbar from './components/layout/Navbar';
+import LiveTicker from './components/layout/LiveTicker';
+import Footer from './components/layout/Footer';
+import HomePage from './components/home/HomePage';
+import TournamentListings from './components/tournament/TournamentListings';
+import TournamentDashboard from './components/tournament/TournamentDashboard';
+import CreateTournament from './components/tournament/CreateTournament';
+import ManageTournament from './components/tournament/ManageTournament';
+import PlayerProfilePage from './components/profile/PlayerProfilePage';
+import ScoutingHub from './components/scouting/ScoutingHub';
+import TeamsDashboard from './components/team/TeamsDashboard';
+import TeamProfilePage from './components/profile/TeamProfilePage';
+import AdminDashboard from './components/admin/AdminDashboard';
 
 import PrivacyPolicy from './components/privacy/PrivacyPolicy';
 import TermsOfService from './components/privacy/TermsOfService';
@@ -92,7 +92,7 @@ function AppInner() {
           <Route path="/teams" element={<TeamsDashboard onNavigate={handleNavigate} />} />
           <Route path="/teams/:id" element={<TeamWrapper />} />
           
-          <Route path="/players" element={<PlayerSearch onNavigate={handleNavigate} />} />
+          <Route path="/players" element={<ScoutingHub onNavigate={handleNavigate} />} />
           <Route path="/players/:id" element={<PlayerWrapper />} />
           
           <Route path="/admin" element={<AdminDashboard onNavigate={handleNavigate} />} />
