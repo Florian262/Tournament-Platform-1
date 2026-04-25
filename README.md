@@ -83,7 +83,6 @@ database/
 
 ## 📄 Documentation
 
-- [GEMINI.md](./GEMINI.md): Internal agent context and engineering standards.
 - [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md): Detailed architecture and API reference.
 
 ## License
